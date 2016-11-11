@@ -79,17 +79,17 @@ write.table(tidy_mean_dataset, file.path("tidy_mean_dataset.txt"), row.names=FAL
 
 #### FEATURES
 ```
-     featureId                      feature
-     --------- ----------------------------
- 1:          1                tBodyAccMeanX
- 2:          2                tBodyAccMeanY
- 3:          3                tBodyAccMeanZ
- 4:          4                 tBodyAccStdX
- 5:          5                 tBodyAccStdY
- 6:          6                 tBodyAccStdZ
- 7:         41             tGravityAccMeanX
- 8:         42             tGravityAccMeanY
- 9:         43             tGravityAccMeanZ
+    featureId                      feature
+    --------- ----------------------------
+ 1:         1                tBodyAccMeanX
+ 2:         2                tBodyAccMeanY
+ 3:         3                tBodyAccMeanZ
+ 4:         4                 tBodyAccStdX
+ 5:         5                 tBodyAccStdY
+ 6:         6                 tBodyAccStdZ
+ 7:        41             tGravityAccMeanX
+ 8:        42             tGravityAccMeanY
+ 9:        43             tGravityAccMeanZ
 10:        44              tGravityAccStdX
 11:        45              tGravityAccStdY
 12:        46              tGravityAccStdZ
