@@ -66,3 +66,16 @@ tidy_dataset <- rbind(train_dataset, test_dataset)
 #
 write.table(tidy_dataset, file.path("tidy_dataset.txt"), row.names=FALSE)
 
+
+#
+# Independent tidy data set with the average of each variable for each activity and each subject.
+#
+
+groups <- group_by(tidy_dataset, subjectId, activityId)
+tidy_mean_dataset <- summarize_each(groups, c("mean"))
+
+#
+# write the tidy dataset with average of each variable for each activity and each subject
+# into file "tidy_mean_dataset.txt"
+#
+write.table(tidy_mean_dataset, file.path("tidy_mean_dataset.txt"), row.names=FALSE)
