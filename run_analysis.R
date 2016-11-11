@@ -10,22 +10,28 @@ if(!file.exists(file.path(DATASET_FILENAME))) {
     unzip(file.path(DATASET_FILENAME))
 }
 
+# Load activity into data table and assign column name
 activities <- fread(file.path(DATASET_HOME,"activity_labels.txt"))
-
 colnames(activities) <- c("activityId", "activity")
 
-features <- fread(file.path(DATASET_HOME, "features.txt")) %>%
-    subset(regexpr("mean|std", V2) > 0) %>%
+# Load features into data table
+features <- fread(file.path(DATASET_HOME, "features.txt"))
+
+# Select only measurements on the mean and standard deviation for each measurement.
+features <- subset(features, regexpr("mean|std", V2) > 0) %>%
     mutate(V2 = gsub("-mean", "Mean", features[,V2])) %>%
     mutate(V2 = gsub("-std", "Std", features[,V2])) %>%
     mutate(V2 = gsub("[()-]", "", features[,V2]))
 
+# Assign column name
 colnames(features) <- c("featureId", "feature")
 
 
-#
-# Load, read and construct train dataset
-#
+##
+## Load, read and construct training dataset.
+## Assig descriptive column name
+## Column binding all - subject, activity and measurement
+##
 
 train_data <- fread(file.path(DATASET_HOME, "train", "X_train.txt")) %>%
     select(features[,"featureId"])
@@ -39,9 +45,11 @@ colnames(train_subject) <- c("subjectId")
 
 train_dataset <- cbind(train_subject, train_activity, train_data)
 
-#
-# Load, read and construct test dataset
-#
+##
+## Load, read and construct test dataset.
+## Assig descriptive column name
+## Column binding all - subject, activity and measurement
+##
 
 test_data <- fread(file.path(DATASET_HOME, "test", "X_test.txt")) %>%
     select(features[,"featureId"])
@@ -56,9 +64,9 @@ colnames(test_subject) <- c("subjectId")
 test_dataset <- cbind(test_subject, test_activity, test_data)
 
 
-#
-# Merge both dataset as final tidy dataset
-#
+##
+## Merge both dataset as final tidy dataset
+##
 tidy_dataset <- rbind(train_dataset, test_dataset)
 
 #
@@ -67,9 +75,9 @@ tidy_dataset <- rbind(train_dataset, test_dataset)
 write.table(tidy_dataset, file.path("tidy_dataset.txt"), row.names=FALSE)
 
 
-#
-# Independent tidy data set with the average of each variable for each activity and each subject.
-#
+##
+## Independent tidy data set with the average of each variable for each activity and each subject.
+##
 
 groups <- group_by(tidy_dataset, subjectId, activityId)
 tidy_mean_dataset <- summarize_each(groups, c("mean"))
