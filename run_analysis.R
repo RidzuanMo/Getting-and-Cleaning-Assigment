@@ -33,17 +33,18 @@ colnames(features) <- c("featureId", "feature")
 ## Column binding all - subject, activity and measurement
 ##
 
-train_data <- fread(file.path(DATASET_HOME, "train", "X_train.txt")) %>%
+train_measurement <- fread(file.path(DATASET_HOME, "train", "X_train.txt")) %>%
     select(features[,"featureId"])
-colnames(train_data) <- features[,"feature"]
+colnames(train_measurement) <- features[,"feature"]
 
 train_activity <- fread(file.path(DATASET_HOME, "train", "y_train.txt"))
 colnames(train_activity) <- c("activityId")
+train_activity <- merge(train_activity, activities, by="activityId")
 
 train_subject <- fread(file.path(DATASET_HOME, "train", "subject_train.txt"))
 colnames(train_subject) <- c("subjectId")
 
-train_dataset <- cbind(train_subject, train_activity, train_data)
+train_dataset <- cbind(train_subject, select(train_activity, activity), train_measurement)
 
 ##
 ## Load, read and construct test dataset.
@@ -57,11 +58,12 @@ colnames(test_data) <- features[,"feature"]
 
 test_activity <- fread(file.path(DATASET_HOME, "test", "y_test.txt"))
 colnames(test_activity) <- c("activityId")
+test_activity <- merge(test_activity, activities, by="activityId")
 
 test_subject <- fread(file.path(DATASET_HOME, "test", "subject_test.txt"))
 colnames(test_subject) <- c("subjectId")
 
-test_dataset <- cbind(test_subject, test_activity, test_data)
+test_dataset <- cbind(test_subject, select(test_activity, activity), test_data)
 
 
 ##
@@ -79,7 +81,7 @@ write.table(tidy_dataset, file.path("tidy_dataset.txt"), row.names=FALSE)
 ## Independent tidy data set with the average of each variable for each activity and each subject.
 ##
 
-groups <- group_by(tidy_dataset, subjectId, activityId)
+groups <- group_by(tidy_dataset, subjectId, activity)
 tidy_mean_dataset <- summarize_each(groups, c("mean"))
 
 #

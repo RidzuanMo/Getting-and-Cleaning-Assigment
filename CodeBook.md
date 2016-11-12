@@ -3,60 +3,73 @@
 ## 1) Process Flow
 ### Task 1 : Construct tidy dataset
 
-1. Load list of activities and assign column name.  
+step 1- Download dataset and uncompress zipped files.
+```{R}
+download.file(url, file.path(DATASET_FILENAME), method = "curl")
+unzip(file.path(DATASET_FILENAME))
+```  
+step 2- Load list of activities and assign column name.  
 ```{R}
 # Load activity into data table and assign column name
 activities <- fread(file.path(DATASET_HOME,"activity_labels.txt"))
 colnames(activities) <- c("activityId", "activity")
-``` 
-2. Load list of features and assign column name. Select on features which have a mean and standard deviation for each measurement only.  
+```
+step 3- Load list of features and assign column name. Select on features which have a mean and standard deviation for each measurement only.  
 ```{r} 
 # Load features into data table
 features <- fread(file.path(DATASET_HOME, "features.txt"))
+
 # Select only measurements on the mean and standard deviation for each measurement.
 features <- subset(features, regexpr("mean|std", V2) > 0) %>%
    mutate(V2 = gsub("-mean", "Mean", features[,V2])) %>%
    mutate(V2 = gsub("-std", "Std", features[,V2])) %>%
    mutate(V2 = gsub("[()-]", "", features[,V2]))
+
 # Assign column name
 colnames(features) <- c("featureId", "feature")
-``` 
-3. Read a **training** data under folder *"./UCI HAR Dataset/train/"* and build a tidy dataset  
+```
+step 4- Read a **training** data under folder *"./UCI HAR Dataset/train/"* and build a tidy dataset  
 ```{r}
 # Load, read and construct training dataset.
 # Assig descriptive column name.
-train_data <- fread(file.path(DATASET_HOME, "train", "X_train.txt")) %>%
+train_measurement <- fread(file.path(DATASET_HOME, "train", "X_train.txt")) %>%
    select(features[,"featureId"])
-colnames(train_data) <- features[,"feature"] 
+colnames(train_measurement) <- features[,"feature"] 
+
 train_activity <- fread(file.path(DATASET_HOME, "train", "y_train.txt"))
 colnames(train_activity) <- c("activityId") 
+train_activity <- merge(train_activity, activities, by="activityId")
+
 train_subject <- fread(file.path(DATASET_HOME, "train", "subject_train.txt"))
 colnames(train_subject) <- c("subjectId")
-``` 
-4. Combine the messy data for _measurement_, _activity_ and _subject_ using **cbind** to create tidy dataset for *training*
+```
+step 5- Combine the messy data for _measurement_, _activity_ and _subject_ using **cbind** to create tidy dataset for *training*
 ```{r}
-train_dataset <- cbind(train_subject, train_activity, train_data)
+train_dataset <- cbind(train_subject, select(train_activity, activity), train_data)
 ``` 
-5. Repeat step 3 and 4 for **test** data under folder *"./UCI HAR Dataset/test/"* to build a tidy dataset. Store the tidy dataset for test into variable **test_dataset**
-6. Merge both tidy dataset into final tidy dataset variable called **tidy_dataset**  
+step 6- Repeat step 4 and 5 for **test** data under folder *"./UCI HAR Dataset/test/"* to build a tidy dataset. Store the tidy dataset for test into variable **test_dataset**
+
+step 7- Merge both tidy dataset into final tidy dataset variable called **tidy_dataset**  
 ```{R} 
 tidy_dataset <- rbind(train_dataset, test_dataset)
 ```
-7. write to output file **tidy_dataset.text**  
+step 8- write to output file **tidy_dataset.text**  
 ```{R}
 write.table(tidy_dataset, file.path("tidy_dataset.txt"), row.names=FALSE)
 ```
 
-### Task 3 : Dataset with the average of each variable.
+### Task 2 : Dataset with the average of each variable.
 
-1. Firstly, the **tidy_dataset** is group by _subjectId_ and _activityId_
-2. apply *summarize_each* which provided by package **dplyr**
+step 1- Firstly, the **tidy_dataset** is group by _subjectId_ and _activityId_
+
+step 2- apply *summarize_each* which provided by package **dplyr**
 ```{r}
 # summarize_each will apply the function mean() to get the average
 # and the groups field is ignore in this process.
 tidy_mean_dataset <- summarize_each(groups, c("mean"))
 ```
-3. write to output file **tidy_mean_dataset.text**  
+
+step 3- write to output file **tidy_mean_dataset.text**  
 ```{R}
 write.table(tidy_mean_dataset, file.path("tidy_mean_dataset.txt"), row.names=FALSE)
 ```  
@@ -162,6 +175,87 @@ write.table(tidy_mean_dataset, file.path("tidy_mean_dataset.txt"), row.names=FAL
 79:       552 fBodyBodyGyroJerkMagMeanFreq
 ```
 #### TIDY DATASET
-
-
+Column | Remarks
+----------|---------------------------------
+subjectId | Test and Training subject
+activity  | Type of activity
+tBodyAccMeanX | Measurement data
+tBodyAccMeanY | Measurement data
+tBodyAccMeanZ | Measurement data
+tBodyAccStdX | Measurement data
+tBodyAccStdY | Measurement data
+tBodyAccStdZ | Measurement data
+tGravityAccMeanX | Measurement data
+tGravityAccMeanY | Measurement data
+tGravityAccMeanZ | Measurement data
+tGravityAccStdX | Measurement data
+tGravityAccStdY | Measurement data
+tGravityAccStdZ | Measurement data
+tBodyAccJerkMeanX | Measurement data
+tBodyAccJerkMeanY | Measurement data
+tBodyAccJerkMeanZ | Measurement data
+tBodyAccJerkStdX | Measurement data
+tBodyAccJerkStdY | Measurement data
+tBodyAccJerkStdZ | Measurement data
+tBodyGyroMeanX | Measurement data
+tBodyGyroMeanY | Measurement data
+tBodyGyroMeanZ | Measurement data
+tBodyGyroStdX | Measurement data
+tBodyGyroStdY | Measurement data
+tBodyGyroStdZ | Measurement data
+tBodyGyroJerkMeanX | Measurement data
+tBodyGyroJerkMeanY | Measurement data
+tBodyGyroJerkMeanZ | Measurement data
+tBodyGyroJerkStdX | Measurement data
+tBodyGyroJerkStdY | Measurement data
+tBodyGyroJerkStdZ | Measurement data
+tBodyAccMagMean | Measurement data
+tBodyAccMagStd | Measurement data
+tGravityAccMagMean | Measurement data
+tGravityAccMagStd | Measurement data
+tBodyAccJerkMagMean | Measurement data
+tBodyAccJerkMagStd | Measurement data
+tBodyGyroMagMean | Measurement data
+tBodyGyroMagStd | Measurement data
+tBodyGyroJerkMagMean | Measurement data
+tBodyGyroJerkMagStd | Measurement data
+fBodyAccMeanX | Measurement data
+fBodyAccMeanY | Measurement data
+fBodyAccMeanZ | Measurement data
+fBodyAccStdX | Measurement data
+fBodyAccStdY | Measurement data
+fBodyAccStdZ | Measurement data
+fBodyAccMeanFreqX | Measurement data
+fBodyAccMeanFreqY | Measurement data
+fBodyAccMeanFreqZ | Measurement data
+fBodyAccJerkMeanX | Measurement data
+fBodyAccJerkMeanY | Measurement data
+fBodyAccJerkMeanZ | Measurement data
+fBodyAccJerkStdX | Measurement data
+fBodyAccJerkStdY | Measurement data
+fBodyAccJerkStdZ | Measurement data
+fBodyAccJerkMeanFreqX | Measurement data
+fBodyAccJerkMeanFreqY | Measurement data
+fBodyAccJerkMeanFreqZ | Measurement data
+fBodyGyroMeanX | Measurement data
+fBodyGyroMeanY | Measurement data
+fBodyGyroMeanZ | Measurement data
+fBodyGyroStdX | Measurement data
+fBodyGyroStdY | Measurement data
+fBodyGyroStdZ | Measurement data
+fBodyGyroMeanFreqX | Measurement data
+fBodyGyroMeanFreqY | Measurement data
+fBodyGyroMeanFreqZ | Measurement data
+fBodyAccMagMean | Measurement data
+fBodyAccMagStd | Measurement data
+fBodyAccMagMeanFreq | Measurement data
+fBodyBodyAccJerkMagMean | Measurement data
+fBodyBodyAccJerkMagStd | Measurement data
+fBodyBodyAccJerkMagMeanFreq | Measurement data
+fBodyBodyGyroMagMean | Measurement data
+fBodyBodyGyroMagStd | Measurement data
+fBodyBodyGyroMagMeanFreq | Measurement data
+fBodyBodyGyroJerkMagMean | Measurement data
+fBodyBodyGyroJerkMagStd | Measurement data
+fBodyBodyGyroJerkMagMeanFreq | Measurement data
 
